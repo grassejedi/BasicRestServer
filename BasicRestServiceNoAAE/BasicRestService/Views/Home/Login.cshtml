@@ -1,0 +1,37 @@
+﻿@model BasicRestService.Models.login
+
+@{
+    ViewBag.Title = "Login";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Login</h2>
+
+<fieldset>
+    <legend>login</legend>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.userNumber)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.userNumber)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.userName)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.userName)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.pass)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.pass)
+    </div>
+</fieldset>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id=Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
