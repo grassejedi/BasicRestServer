@@ -36,21 +36,21 @@ namespace BasicRestService.Controllers
         public HttpResponseMessage Get(string productName)
         {
 
-                using (var db = new Models.DatabaseEntities())
-                {
-                    var prod = (from p in db.products
-                                    where p.productName == productName
-                                    select new { p.productName, p.buyPrice, p.description, p.quantityInStock, p.productVendor }).ToList();
+            using (var db = new Models.DatabaseEntities())
+            {
+                var prod = (from p in db.products
+                            where p.productName == productName
+                            select new { p.productName, p.buyPrice, p.description, p.quantityInStock, p.productVendor }).ToList();
 
-                    if (prod.Count() > 0)
-                    {
-                        return Request.CreateResponse(HttpStatusCode.OK, prod, System.Net.Http.Formatting.JsonMediaTypeFormatter.DefaultMediaType);
-                    }
-                    else
-                    {
-                        return Request.CreateResponse(HttpStatusCode.NotFound, "Product not found", System.Net.Http.Formatting.JsonMediaTypeFormatter.DefaultMediaType);
-                    }
+                if (prod.Count() > 0)
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK, prod, System.Net.Http.Formatting.JsonMediaTypeFormatter.DefaultMediaType);
                 }
+                else
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Product not found", System.Net.Http.Formatting.JsonMediaTypeFormatter.DefaultMediaType);
+                }
+            }
         }
 
 
@@ -80,20 +80,20 @@ namespace BasicRestService.Controllers
         }
 
 
+
+
         /// <summary>
-        /// POST a new product by passing separate parameters.  Only admins can do this.
+        /// Post Method.  Uses parameters from query string.
         /// </summary>
-        /// <param name="token"></param>
-        /// <param name="pcode"></param>
-        /// <param name="pname"></param>
-        /// <param name="pprice"></param>
-        /// <param name="pquantity"></param>
-        /// <param name="pvendor"></param>
-        /// <param name="pdesc"></param>
+        /// <param name="productName"></param>
+        /// <param name="buyPrice"></param>
+        /// <param name="quantityInStock"></param>
+        /// <param name="productVendor"></param>
+        /// <param name="description"></param>
         /// <param name="MSRP"></param>
         /// <returns></returns>
         [HttpPost]
-        public HttpResponseMessage Post(string productName, decimal buyPrice, short quantityInStock, string productVendor= "", string  description = "", decimal MSRP=0)
+        public HttpResponseMessage Post(string productName, decimal buyPrice, short quantityInStock, string productVendor = "", string description = "", decimal MSRP = 0)
         {
             using (var db = new Models.DatabaseEntities())
             {
@@ -118,7 +118,7 @@ namespace BasicRestService.Controllers
                 {
                     return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message, System.Net.Http.Formatting.JsonMediaTypeFormatter.DefaultMediaType);
                 }
-                       
+
                 var msg = Request.CreateResponse(HttpStatusCode.Created, "Product " + prod.productName + " was created.", System.Net.Http.Formatting.JsonMediaTypeFormatter.DefaultMediaType);
                 msg.Headers.Location = new Uri(Request.RequestUri + "&productId=" + prod.productId.ToString());
                 return msg;
@@ -127,9 +127,8 @@ namespace BasicRestService.Controllers
 
 
         /// <summary>
-        /// POST.  Create new product by passing Json object.  Only Admins can do this
+        /// POST.  Create new product by passing Json object. 
         /// </summary>
-        /// <param name="token"></param>
         /// <param name="json"></param>
         /// <returns></returns>
         [HttpPost]
@@ -144,15 +143,15 @@ namespace BasicRestService.Controllers
                     db.products.Add(prod);
                     db.SaveChanges();
                 }
-                catch(System.Data.Entity.Validation.DbEntityValidationException ex)
+                catch (System.Data.Entity.Validation.DbEntityValidationException ex)
                 {
                     // A required field was most likely missing from the json object
-                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.EntityValidationErrors.ToList(), System.Net.Http.Formatting.JsonMediaTypeFormatter.DefaultMediaType);        
-                }                       
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, ex.EntityValidationErrors.ToList(), System.Net.Http.Formatting.JsonMediaTypeFormatter.DefaultMediaType);
+                }
                 catch (Exception ex)
                 {
                     // Something like log4net could be implemented to write out the actual errors and info to a file
-                    return Request.CreateResponse(HttpStatusCode.BadRequest, "An error occurred and product was not created. Error message: " +  ex.Message , System.Net.Http.Formatting.JsonMediaTypeFormatter.DefaultMediaType);
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "An error occurred and product was not created. Error message: " + ex.Message, System.Net.Http.Formatting.JsonMediaTypeFormatter.DefaultMediaType);
                 }
 
 
@@ -164,9 +163,8 @@ namespace BasicRestService.Controllers
 
 
         /// <summary>
-        /// PUT.  Updates a product.  Only Admins can do this
+        /// PUT.  Updates a product.  
         /// </summary>
-        /// <param name="token"></param>
         /// <param name="json"></param>
         /// <returns></returns>
         [HttpPut]
@@ -206,23 +204,22 @@ namespace BasicRestService.Controllers
                 {
                     // A required field was most likely missing from the json object
                     return Request.CreateResponse(HttpStatusCode.BadRequest, ex.EntityValidationErrors.ToList(), System.Net.Http.Formatting.JsonMediaTypeFormatter.DefaultMediaType);
-                } 
+                }
                 catch (Exception ex)
                 {
                     // Something like log4net could be implemented to write out the actual errors and info to a file
                     return Request.CreateResponse(HttpStatusCode.BadRequest, "An error occurred and product was not updated.", System.Net.Http.Formatting.JsonMediaTypeFormatter.DefaultMediaType);
                 }
-                        
+
                 return Request.CreateResponse(HttpStatusCode.OK, "Products were updated.", System.Net.Http.Formatting.JsonMediaTypeFormatter.DefaultMediaType);
             }
         }
 
 
         /// <summary>
-        /// DELETE. Only Admins can do this
+        /// Delete method
         /// </summary>
-        /// <param name="token"></param>
-        /// <param name="pcode" description="Product Code for product"></param>
+        /// <param name="productId"></param>
         /// <returns></returns>
         [HttpDelete]
         public HttpResponseMessage Delete(decimal productId)
@@ -230,7 +227,7 @@ namespace BasicRestService.Controllers
             using (var db = new Models.DatabaseEntities())
             {
                 Models.product prod = db.products.FirstOrDefault(p => p.productId == productId);
-                        
+
                 if (prod != null)
                 {
                     db.products.Attach(prod);
@@ -247,7 +244,7 @@ namespace BasicRestService.Controllers
                     catch (Exception ex)
                     {
                         // Something like log4net could be implemented to write out the actual errors and info to a file
-                        return Request.CreateResponse(HttpStatusCode.InternalServerError, "An error occurred and product was not deleted.  Error Message " + ex.Message , System.Net.Http.Formatting.JsonMediaTypeFormatter.DefaultMediaType);
+                        return Request.CreateResponse(HttpStatusCode.InternalServerError, "An error occurred and product was not deleted.  Error Message " + ex.Message, System.Net.Http.Formatting.JsonMediaTypeFormatter.DefaultMediaType);
                     }
 
                     return Request.CreateResponse(HttpStatusCode.OK, "Product " + prod.productName + " with Product Code " + productId + " was deleted.", System.Net.Http.Formatting.JsonMediaTypeFormatter.DefaultMediaType);
