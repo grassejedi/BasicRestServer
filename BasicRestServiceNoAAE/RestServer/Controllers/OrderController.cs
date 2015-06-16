@@ -127,6 +127,11 @@ namespace RestServer.Controllers
 
             Models.user existingUser = db.users.FirstOrDefault(u => u.userNumber == newOrder.userNumber);
 
+            if (existingUser == null)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, "Invalid userNumber was recieved.", System.Net.Http.Formatting.JsonMediaTypeFormatter.DefaultMediaType);
+            }
+
             newOrder.orderDate = (newOrder.orderDate == default(DateTime)) ? DateTime.Now : newOrder.orderDate;
 
             if (json["orderDetails"] == null)
